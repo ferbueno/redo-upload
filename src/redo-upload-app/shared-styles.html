@@ -1,0 +1,93 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+
+<dom-module id="shared-styles">
+	<template>
+		<style>
+			@font-face {
+			  font-family: 'Material Icons';
+			  font-style: normal;
+			  font-weight: 400;
+			  src: url(https://example.com/MaterialIcons-Regular.eot); /* For IE6-8 */
+			  src: local('Material Icons'),
+			    local('MaterialIcons-Regular'),
+			    url(https://example.com/MaterialIcons-Regular.woff2) format('woff2'),
+			    url(https://example.com/MaterialIcons-Regular.woff) format('woff'),
+			    url(https://example.com/MaterialIcons-Regular.ttf) format('truetype');
+			}
+			:host{
+				font-family: 'Roboto';
+			}
+			.material-icons {
+			  font-family: 'Material Icons';
+			  font-weight: normal;
+			  font-style: normal;
+			  font-size: 18px;  /* Preferred icon size */
+			  display: inline-block;
+			  line-height: 1;
+			  text-transform: none;
+			  letter-spacing: normal;
+			  word-wrap: normal;
+			  white-space: nowrap;
+			  direction: ltr;
+
+			  /* Support for all WebKit browsers. */
+			  -webkit-font-smoothing: antialiased;
+			  /* Support for Safari and Chrome. */
+			  text-rendering: optimizeLegibility;
+
+			  /* Support for Firefox. */
+			  -moz-osx-font-smoothing: grayscale;
+
+			  /* Support for IE. */
+			  font-feature-settings: 'liga';
+			}
+
+			paper-spinner-lite{
+				width: 24px;
+				height: 24px;
+			}
+
+			paper-button{
+				background-color: var(--blungo-default-button-background-color);
+				color: var(--blungo-default-button-font-color);
+				text-transform: capitalize;
+				padding: 10px 20px;
+			}
+			paper-button.navigate{
+				background-color: var(--blungo-navigation-button-background-color);
+			}
+			paper-button.cancel{
+				background-color: var(--blungo-cancel-button-background-color);
+			}
+			paper-button i{
+				border-radius: 50%;
+				padding: 5px;
+				margin-right: 10px;
+				background-color: var(--blungo-button-icon-background-color);
+				color: var(--blungo-button-icon-color);
+				font-size: 16px;
+			}
+			::-webkit-input-placeholder {
+			    font-family: 'Roboto';
+			}
+			:-moz-placeholder {
+			    font-family: 'Roboto';
+			}
+			::-moz-placeholder {
+			    font-family: 'Roboto';
+			}
+			:-ms-input-placeholder {
+			    font-family: 'Roboto';
+			}
+		</style>
+	</template>
+	<script>
+		class SharedStyles extends Polymer.Element{
+			static get is() { return 'shared-styles'}
+		}
+
+		customElements.define(SharedStyles.is, SharedStyles)
+
+	</script>
+</dom-module>

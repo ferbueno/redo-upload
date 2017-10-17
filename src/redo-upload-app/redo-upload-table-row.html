@@ -1,0 +1,60 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/paper-ripple/paper-ripple.html">
+<link rel="import" href="shared-styles.html">
+
+<dom-module id="redo-upload-table-row">
+	<template>
+		<style include="shared-styles">
+			.wrapper{
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				background: white;
+				border-radius: 3px;
+				padding: 10px;
+				margin: 5px 0;
+			}
+			i{
+				font-size: 18px;
+			}
+			.edit{
+				color: #03C9A9;
+			}
+			.delete{
+				color: #EC644B;
+			}
+		</style>
+		<div class="wrapper">
+			<div class="index">[[question.index]]</div>
+			<div class="description"></div>
+			<div class="answer"></div>
+			<i class="material-icons edit">create
+				<paper-ripple></paper-ripple></i>
+			<i class="material-icons delete">delete
+				<paper-ripple></paper-ripple></i>
+		</div>
+	</template>
+	<script>
+		class RedoUploadTableRow extends Polymer.Element {
+			static get is() { return 'redo-upload-table-row' }
+
+			static get properties(){
+				return {
+					question:{
+						type: Object
+					}
+				}
+			}
+
+			_dispatchEdit(){
+				this.dispatchEvent( new CustomEvent('edit', {bubbles: true, composed: true, detail: {index: this.question.index}}))
+			}
+
+			_dispatchDelete(){
+				this.dispatchEvent( new CustomEvent('delete', {bubbles: true, composed: true, detail: {index: this.question.index}}))
+			}
+		}
+
+		customElements.define(RedoUploadTableRow.is, RedoUploadTableRow)
+	</script>
+</dom-module>

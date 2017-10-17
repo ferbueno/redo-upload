@@ -1,0 +1,7 @@
+{
+  "name": "redo-upload",
+  "short_name": "redo-upload",
+  "description": "A small application to start uploading the questions for Redo",
+  "start_url": "/",
+  "display": "standalone"
+}

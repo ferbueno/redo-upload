@@ -1,0 +1,96 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/paper-spinner/paper-spinner-lite.html">
+<link rel="import" href="redo-upload-table-row.html">
+
+<dom-module id="redo-upload-app">
+  <template>
+    <style>
+      :host {
+        display: block;
+        background: rgba(236,100,75, 0.3);
+        position: relative;
+      }
+      .add{
+        position: absolute;
+        background: #446CB3;
+        color: white;
+        top: 20px;
+        right: 20px;
+        padding: 20px;
+        border-radius: 50%;
+        cursor: pointer;
+      }
+    </style>
+    <i class="material-icons add">add
+        <paper-ripple></paper-ripple>
+    </i>
+    <template is="dom-if" if="[[!loadingQuestions]]">
+      <template is="dom-repeat" items="[[questions]]" as="question">
+        <redo-upload-table-row 
+          question="[[question]]"
+          on-edit="_editQuestion"
+          on-delete="_deleteQuestion"></redo-upload-table-row>
+       </template>
+    </template>
+    <template is="dom-if" if="[[loadingQuestions]]">
+      <paper-spinner-lite active class="white"></paper-spinner-lite>
+    </template>
+
+    <iron-ajax
+      id="getQuestionsAjax"
+      method="GET"
+      on-response="_handleGetQuestionsAjaxResponse"
+      on-error="_handleError"
+      debounce-duration="3000"
+      loading="{{loadingQuestions}}"
+    ></iron-ajax>
+
+  </template>
+
+  <script>
+    /**
+     * @customElement
+     * @polymer
+     */
+    class RedoUploadApp extends Polymer.Element {
+      static get is() { return 'redo-upload-app'; }
+      static get properties() {
+        return {
+          questions: {
+            type: Array,
+            value: 'redo-upload-app'
+          },
+          loadingQuestions:{
+            type: Boolean,
+            value: false
+          }
+        }
+      }
+
+      connectedCallback(){
+        super.connectedCallback()
+        this.$.getQuestionsAjax.generateRequest()
+      }
+
+      _handleGetQuestionsAjaxResponse(r){
+        if (r.detail.response.success) {
+          this.set('questions', r.detail.response.question)
+        }
+      }
+
+      _handleError(e){
+        console.log("Error")
+      }
+
+      _editQuestion(e){
+
+      }
+
+      _deleteQuestion(e){
+
+      }
+    }
+
+    window.customElements.define(RedoUploadApp.is, RedoUploadApp);
+  </script>
+</dom-module>

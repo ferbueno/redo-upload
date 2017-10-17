@@ -1,0 +1,99 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../bower_components/iron-input/iron-input.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-spinner/paper-spinner-lite.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/paper-radio-group/paper-radio-group.html">
+<link rel="import" href="../../bower_components/paper-radio-button/paper-radio-button.html">
+
+<link rel="import" href="shared-styles.html">
+
+<dom-module id="redo-upload-question-dialog">
+	<template>
+		<style include="shared-styles">
+			paper-dialog{
+				padding: 20px;
+				position: relative;
+			}
+			i.close{
+				position: absolute;
+				top: 0;
+				right: 0;
+			}
+			textarea{
+				width: 100%;
+			}
+		</style>
+		<paper-dialog opened="{{opened}}">
+			<i class="material-icons close">close
+				<paper-ripple></paper-ripple>
+			</i>
+		</paper-dialog>
+		<div class="field">
+			<label>Descripción</label>
+			<textarea id="description" rows="10"></textarea>
+		</div>
+		<div class="question">
+			<div class="index"></div>
+		</div>
+		<div class="question">
+			<div class="index"></div>
+		</div>
+		<div class="question">
+			<div class="index"></div>
+		</div>
+		<div class="question">
+			<div class="index"></div>
+		</div>
+		<div class="field">
+			<label>Elige la respuesta correcta</label>
+			<paper-radio-group>
+				<paper-radio-button></paper-radio-button>
+				<paper-radio-button></paper-radio-button>
+				<paper-radio-button></paper-radio-button>
+				<paper-radio-button></paper-radio-button>
+			</paper-radio-group>
+		</div>
+		
+
+	</template>
+	<script>
+		class RedoUploadQuestionDialog extends PolymerElement{
+			static get is() { return 'redo-upload-question-dialog' }
+
+			static get properties(){
+				return{
+					question:{
+						type: Object,
+					},
+					opened:{
+						type: Boolean,
+						value: false
+					},
+					loadingAnswer:{
+						type: Boolean,
+						value: false
+					}
+				}
+			}
+
+			_open(){
+				this.opened = true
+			}
+
+			_toggle(){
+				this.opened = !this.opened
+			}
+
+			_openWithQuestion(question){
+				if (question) {
+					this.set('question', question)
+					this._open()
+				}
+			}
+		}
+
+		customElements.define(RedoUploadQuestionDialog.is, RedoUploadQuestionDialog)
+	</script>
+</dom-module>
