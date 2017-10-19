@@ -12,7 +12,14 @@
 <dom-module id="redo-upload-question-dialog">
 	<template>
 		<style include="shared-styles">
+			:host(:not([opened])) .background{
+				display: none;
+			}
+			:host([opened]) .background{
+				display: flex;
+			}
 			paper-dialog{
+				width: 600px;
 				padding: 20px;
 				position: relative;
 			}
@@ -20,46 +27,85 @@
 				position: absolute;
 				top: 0;
 				right: 0;
+				cursor: pointer;
 			}
 			textarea{
 				width: 100%;
 			}
+			.background{
+				position: fixed;
+				width: 100%;
+				height: 100%;
+				background: rgba(0,0,0,0.2);
+				align-items: center;
+				justify-content: center;
+				top: 0;
+				left: 0;
+			}
+			.question{
+				display: flex;
+				justify-content: stretch;
+				align-items: center;
+			}
+			.question .description{
+				flex: 2;
+			}
+			.index{
+				padding: 5px 10px;
+				text-align: center;
+				background: var(--redo-transparent-red-background-color);
+				border-radius: 3px;
+				margin-right: 5px;
+			}
+			paper-button{
+				width: 100%;
+				margin:10px auto;
+			}
 		</style>
-		<paper-dialog opened="{{opened}}">
-			<i class="material-icons close">close
-				<paper-ripple></paper-ripple>
-			</i>
-		</paper-dialog>
-		<div class="field">
-			<label>Descripción</label>
-			<textarea id="description" rows="10"></textarea>
-		</div>
-		<div class="question">
-			<div class="index"></div>
-		</div>
-		<div class="question">
-			<div class="index"></div>
-		</div>
-		<div class="question">
-			<div class="index"></div>
-		</div>
-		<div class="question">
-			<div class="index"></div>
-		</div>
-		<div class="field">
-			<label>Elige la respuesta correcta</label>
-			<paper-radio-group>
-				<paper-radio-button></paper-radio-button>
-				<paper-radio-button></paper-radio-button>
-				<paper-radio-button></paper-radio-button>
-				<paper-radio-button></paper-radio-button>
-			</paper-radio-group>
+		<div class="background">
+			<paper-dialog opened="{{opened}}">
+				<i class="material-icons close" on-click="_toggle">close
+					<paper-ripple></paper-ripple>
+				</i>
+				<div class="field">
+					<label>Descripción</label>
+					<textarea id="description" rows="10"></textarea>
+				</div>
+				<div class="question">
+					<div class="index">A</div>
+					<iron-input><input type="text"></iron-input>
+				</div>
+				<div class="question">
+					<div class="index">B</div>
+					<iron-input><input type="text"></iron-input>
+				</div>
+				<div class="question">
+					<div class="index">C</div>
+					<iron-input><input type="text"></iron-input>
+				</div>
+				<div class="question">
+					<div class="index">D</div>
+					<iron-input><input type="text"></iron-input>
+				</div>
+				<div class="field">
+					<label>Elige la respuesta correcta</label>
+					<paper-radio-group>
+						<paper-radio-button name="a">A</paper-radio-button>
+						<paper-radio-button name="b">B</paper-radio-button>
+						<paper-radio-button name="c">C</paper-radio-button>
+						<paper-radio-button name="d">D</paper-radio-button>
+					</paper-radio-group>
+				</div>
+				<paper-button><i class="material-icons">save</i>Guardar</paper-button>
+				
+				
+			</paper-dialog>
 		</div>
 		
 
 	</template>
 	<script>
-		class RedoUploadQuestionDialog extends PolymerElement{
+		class RedoUploadQuestionDialog extends Polymer.Element{
 			static get is() { return 'redo-upload-question-dialog' }
 
 			static get properties(){
@@ -69,7 +115,8 @@
 					},
 					opened:{
 						type: Boolean,
-						value: false
+						value: false,
+						reflectToAttribute: true,
 					},
 					loadingAnswer:{
 						type: Boolean,
@@ -78,7 +125,8 @@
 				}
 			}
 
-			_open(){
+			open(){
+				this.question = {}
 				this.opened = true
 			}
 

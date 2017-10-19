@@ -14,8 +14,28 @@
 				padding: 10px;
 				margin: 5px 0;
 			}
+			.index{
+				color: #434343;
+				padding: 10px;
+				border-radius: 15px;
+				text-align: center;
+				background: var(--redo-transparent-red-background-color);
+			}
+			.description{
+				flex: 1;
+				text-overflow: ellipsis;
+			}
+			.answer{
+				width: 30px;
+			}
+
 			i{
 				font-size: 18px;
+				position: relative;
+				cursor: pointer;
+				width: 20px;
+				text-align: center;
+				margin: 0 4px;
 			}
 			.edit{
 				color: #03C9A9;
@@ -25,7 +45,7 @@
 			}
 		</style>
 		<div class="wrapper">
-			<div class="index">[[question.index]]</div>
+			<div class="index">[[index]]</div>
 			<div class="description"></div>
 			<div class="answer"></div>
 			<i class="material-icons edit">create
@@ -40,18 +60,21 @@
 
 			static get properties(){
 				return {
+					index:{
+						type: Number
+					},
 					question:{
 						type: Object
-					}
+					},
 				}
 			}
 
 			_dispatchEdit(){
-				this.dispatchEvent( new CustomEvent('edit', {bubbles: true, composed: true, detail: {index: this.question.index}}))
+				this.dispatchEvent( new CustomEvent('edit', {bubbles: true, composed: true, detail: {index: this.index}}))
 			}
 
 			_dispatchDelete(){
-				this.dispatchEvent( new CustomEvent('delete', {bubbles: true, composed: true, detail: {index: this.question.index}}))
+				this.dispatchEvent( new CustomEvent('delete', {bubbles: true, composed: true, detail: {index: this.index}}))
 			}
 		}
 

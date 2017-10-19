@@ -1,9 +1,13 @@
 <link rel="import" href="../../bower_components/polymer/polymer-element.html">
 <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
 
 <dom-module id="shared-styles">
 	<template>
 		<style>
+			*:focus{
+				outline: none;
+			}
 			@font-face {
 			  font-family: 'Material Icons';
 			  font-style: normal;
@@ -17,6 +21,8 @@
 			}
 			:host{
 				font-family: 'Roboto';
+				--redo-transparent-gray-background-color: rgba(0,0,0,0.15);
+				--redo-transparent-red-background-color: rgba(236,100,75, 0.2);
 			}
 			.material-icons {
 			  font-family: 'Material Icons';
@@ -49,23 +55,17 @@
 			}
 
 			paper-button{
-				background-color: var(--blungo-default-button-background-color);
-				color: var(--blungo-default-button-font-color);
+				background-color: #66CC99;
+				color: white;
 				text-transform: capitalize;
 				padding: 10px 20px;
-			}
-			paper-button.navigate{
-				background-color: var(--blungo-navigation-button-background-color);
-			}
-			paper-button.cancel{
-				background-color: var(--blungo-cancel-button-background-color);
 			}
 			paper-button i{
 				border-radius: 50%;
 				padding: 5px;
 				margin-right: 10px;
-				background-color: var(--blungo-button-icon-background-color);
-				color: var(--blungo-button-icon-color);
+				background-color: rgba(62,62,62,0.28);
+				color: white;
 				font-size: 16px;
 			}
 			::-webkit-input-placeholder {
@@ -79,6 +79,36 @@
 			}
 			:-ms-input-placeholder {
 			    font-family: 'Roboto';
+			}
+			textarea{
+				border-radius: 3px;
+				resize: none;
+			}
+			paper-radio-button{
+				--paper-radio-button-checked-color: #EC644B;
+				--paper-radio-button-unchecked-color: #bdbdbd;
+			}
+			iron-input{
+				width: 100%;
+			}
+			input, textarea{
+				padding: 10px;
+				border-radius: 3px;
+				border: 1px solid #bdbdbd;
+				width: 100%;
+			}
+			input:hover, textarea:hover{
+				border: 1px solid #EC644B;
+			}
+			input:focus, textarea:focus{
+				outline: none;
+				border: 1px solid #EC644B;
+			}
+
+			paper-radio-group{
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
 			}
 		</style>
 	</template>
