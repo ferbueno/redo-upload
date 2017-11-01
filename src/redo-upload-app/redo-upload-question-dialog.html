@@ -6,6 +6,7 @@
 <link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../../bower_components/paper-radio-group/paper-radio-group.html">
 <link rel="import" href="../../bower_components/paper-radio-button/paper-radio-button.html">
+<link rel="import" href="../bower_components/paper-toast/paper-toast.html">
 
 <link rel="import" href="shared-styles.html">
 
@@ -28,9 +29,6 @@
 				top: 0;
 				right: 0;
 				cursor: pointer;
-			}
-			textarea{
-				width: 100%;
 			}
 			.background{
 				position: fixed;
@@ -61,46 +59,74 @@
 				width: 100%;
 				margin:10px auto;
 			}
+			h2{
+				font-weight: normal;
+				font-size: 20px;
+				color: darkgray;
+			}
 		</style>
 		<div class="background">
 			<paper-dialog opened="{{opened}}">
 				<i class="material-icons close" on-click="_toggle">close
 					<paper-ripple></paper-ripple>
 				</i>
+				<h2>[[title]]</h2>
 				<div class="field">
-					<label>Descripción</label>
-					<textarea id="description" rows="10"></textarea>
+					<label>Descripción:</label>
+					<textarea id="description" rows="10" on-input="_descriptionChanged"></textarea>
+				</div>
+				<div class="field">
+					<label>Imagen:</label>
+					<div class="img-upload" style="">
+						<div class="img-mask">
+							<i class="material-icons">insert_photo</i>
+							<label>Cargar imagen</label>
+						</div>
+						<input type="file" on-input="_imageUpload">
+					</div>
 				</div>
 				<div class="question">
 					<div class="index">A</div>
-					<iron-input><input type="text"></iron-input>
+					<iron-input bind-value="{{question.answers.a}}"><input type="text"></iron-input>
 				</div>
 				<div class="question">
 					<div class="index">B</div>
-					<iron-input><input type="text"></iron-input>
+					<iron-input bind-value="{{question.answers.b}}"><input type="text"></iron-input>
 				</div>
 				<div class="question">
 					<div class="index">C</div>
-					<iron-input><input type="text"></iron-input>
+					<iron-input bind-value="{{question.answers.c}}"><input type="text"></iron-input>
 				</div>
 				<div class="question">
 					<div class="index">D</div>
-					<iron-input><input type="text"></iron-input>
+					<iron-input bind-value="{{question.answers.d}}"><input type="text"></iron-input>
 				</div>
 				<div class="field">
-					<label>Elige la respuesta correcta</label>
-					<paper-radio-group>
+					<label>Elige la respuesta correcta:</label>
+					<paper-radio-group selected="{{question.selectedAnswer}}">
 						<paper-radio-button name="a">A</paper-radio-button>
 						<paper-radio-button name="b">B</paper-radio-button>
 						<paper-radio-button name="c">C</paper-radio-button>
 						<paper-radio-button name="d">D</paper-radio-button>
 					</paper-radio-group>
 				</div>
-				<paper-button><i class="material-icons">save</i>Guardar</paper-button>
+				<div class="field">
+					<label>Bibliografía:</label>
+					<iron-input bind-value="{{question.bibliography}}"><input type="text"></iron-input>
+				</div>
+				<paper-button on-click="_saveQuestion"><i class="material-icons">save</i>Guardar</paper-button>
 				
 				
 			</paper-dialog>
 		</div>
+		<iron-ajax
+			id="saveQuestionAjax"
+			method="POST"
+			url="https://www.ficus.com.mx/redo/saveQuestion.php"
+			content-type="application/json"
+			body="[[question]]"
+			on-response="_handleSaveQuestionResponse"
+			on-error="_handleSaveQuestionError"></iron-ajax>
 		
 
 	</template>
@@ -121,12 +147,17 @@
 					loadingAnswer:{
 						type: Boolean,
 						value: false
+					},
+					title:{
+						type: String,
+						value: "Nueva Pregunta"
 					}
 				}
 			}
 
 			open(){
 				this.question = {}
+				this.title = "Nueva Pregunta"
 				this.opened = true
 			}
 
@@ -136,10 +167,40 @@
 
 			_openWithQuestion(question){
 				if (question) {
+					this.title = "Editar Pregunta"
 					this.set('question', question)
-					this._open()
+					this.opened = true
+				}else{
+					this.open()
 				}
 			}
+
+			_handleSaveQuestionResponse(r){
+				if (r.detail.response.success) {
+					//alert success
+				}else{
+					//alert error
+				}
+			}
+
+			_handleSaveQuestionError(e){
+				//alert error
+			}
+
+			_descriptionChanged(e){
+				this.set('question.description', e.target.value)
+			}
+
+			_saveQuestion(){
+				//just for reviewing purposes
+				console.log(this.question)
+				//this.$.saveQuestionAjax.generateRequest()
+			}
+
+			_imageUpload(e){
+				console.log(e)
+			}
+
 		}
 
 		customElements.define(RedoUploadQuestionDialog.is, RedoUploadQuestionDialog)
