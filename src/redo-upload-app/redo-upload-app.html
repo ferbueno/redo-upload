@@ -1,5 +1,7 @@
 <link rel="import" href="../../bower_components/polymer/polymer-element.html">
 <link rel="import" href="../../bower_components/paper-spinner/paper-spinner-lite.html">
+<link rel="import" href="../../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../../bower_components/paper-tabs/paper-tab.html">
 <link rel="import" href="redo-upload-table-row.html">
 <link rel="import" href="redo-upload-question-dialog.html">
 <link rel="import" href="shared-styles.html">
@@ -25,6 +27,11 @@
         font-size: 40px;
       }
     </style>
+    <paper-tabs selected="{{selectedCategory}}" scrollable>
+      <template is="dom-repeat" items="[[categories]]" as="category">
+        <paper-tab>[[category.name]]</paper-tab>
+      </template>
+    </paper-tabs>
     <template is="dom-if" if="[[!loadingQuestions]]">
       <template is="dom-repeat" items="[[questions]]" as="question">
         <redo-upload-table-row 
@@ -43,12 +50,23 @@
     <redo-upload-question-dialog id="dialog"></redo-upload-question-dialog>
 
     <iron-ajax
-      id="getQuestionsAjax"
+      id="getCategoriesAjax"
       method="GET"
-      on-response="_handleGetQuestionsAjaxResponse"
       on-error="_handleError"
       debounce-duration="3000"
       loading="{{loadingQuestions}}"
+      last-response="{{categories}}"
+    ></iron-ajax>
+
+    <iron-ajax
+      auto
+      id="getQuestionsAjax"
+      method="GET"
+      on-error="_handleError"
+      debounce-duration="3000"
+      loading="{{loadingQuestions}}"
+      url="/api/questions?category=[[selectedCategory]]"
+      last-response="{{questions}}"
     ></iron-ajax>
 
   </template>
@@ -69,6 +87,9 @@
           loadingQuestions:{
             type: Boolean,
             value: false
+          },
+          selectedCategory:{
+            type: String,
           }
         }
       }
@@ -76,12 +97,6 @@
       connectedCallback(){
         super.connectedCallback()
         this.$.getQuestionsAjax.generateRequest()
-      }
-
-      _handleGetQuestionsAjaxResponse(r){
-        if (r.detail.response.success) {
-          this.set('questions', r.detail.response.question)
-        }
       }
 
       _handleError(e){
