@@ -2,8 +2,17 @@
 <link rel="import" href="../../bower_components/paper-spinner/paper-spinner-lite.html">
 <link rel="import" href="../../bower_components/paper-tabs/paper-tabs.html">
 <link rel="import" href="../../bower_components/paper-tabs/paper-tab.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-menu-button/paper-menu-button.html">
+<link rel="import" href="../../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../bower_components/neon-animation/web-animations.html">
+<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
 <link rel="import" href="redo-upload-table-row.html">
 <link rel="import" href="redo-upload-question-dialog.html">
+<link rel="import" href="redo-upload-category-dialog.html">
+<link rel="import" href="redo-confirmation-dialog.html">
 <link rel="import" href="shared-styles.html">
 
 <dom-module id="redo-upload-app">
@@ -11,62 +20,173 @@
     <style include="shared-styles">
       :host {
         display: block;
-        background: var(--redo-transparent-gray-background-color);
+        background: white;
         position: relative;
-        padding: 20px;
       }
-      .add{
-        position: fixed;
-        background: #446CB3;
+      paper-tabs{
+        background: #f36c54;
         color: white;
-        bottom: 20px;
-        right: 20px;
-        padding: 20px;
-        border-radius: 50%;
+        text-transform: capitalize;
+        width: calc(100% - 130px);
+        height: 60px;
+        position: sticky;
+      }
+      paper-tab.iron-selected{
+        background:#ffffff33;
+      }
+      #actions-button{
+        display: flex;
+        position: fixed;
+        width: 130px;
+        height: 60px;
+        right: 0px;
+        top: 0px;
+        background: #f36c54;
+        overflow: visible;
+        align-items: center;
+        justify-content: center;
+        z-index: 100;
+      }
+      i.add{
+        font-size: 26px;
+        color: #f36c54;
+        padding: 0px;
+        background: white;
+        margin: 0px 5px;
+      }
+      paper-menu-button{
+        padding: 0px;
+        position: relative;
+        overflow: visible;
+      }
+      paper-button  {
+          background-color: #ffffff;
+          color: #f36c54;
+          font-weight: bold;
+          padding: 8px 14px 8px 3px;
+      }
+      paper-item{
         cursor: pointer;
-        font-size: 40px;
+      }
+      paper-listbox{
+        min-width: 200px;
+      }
+      h1#categoryTitle{
+        text-align: center;
+        text-transform: capitalize;
+      }
+      h1#categoryTitle span{
+        margin: 0px 5px;
+        color:#484848;
+      }
+      h1#categoryTitle i{
+        color:#c3c3c3;
+        cursor: pointer;
+      }
+      #spinner{
+        display: block;
+        margin: 70px auto;
+      }
+      #emptyListMessage{
+        text-align: center;
+        color: #a5a3a3;
+        font-size: 19px;
+        margin: 70px;
+      }
+      paper-spinner-lite.orange {
+        --paper-spinner-color: #f36c54;
       }
     </style>
-    <paper-tabs selected="{{selectedCategory}}" scrollable>
+    <paper-tabs selected="{{selectedCategory}}" scrollable no-bar autoselect>
       <template is="dom-repeat" items="[[categories]]" as="category">
         <paper-tab>[[category.name]]</paper-tab>
       </template>
     </paper-tabs>
-    <template is="dom-if" if="[[!loadingQuestions]]">
+    <span id="actions-button">
+      <paper-menu-button horizontal-align="right" vertical-offset="54">
+          <paper-button slot="dropdown-trigger">
+            <i class="material-icons add">add</i>
+            <span>Agregar</span>
+          </paper-button>
+        <paper-listbox slot="dropdown-content">
+          <paper-item on-click="_addQuestion">Nueva Pregunta</paper-item>
+          <paper-item on-click="_addCategory">Nueva Categoría</paper-item>
+        </paper-listbox>
+      </paper-menu-button>
+    </span>
+    <template is="dom-if" if="[[currentCategoryName]]">
+      <h1 id="categoryTitle">
+        <span>[[currentCategoryName]]</span>
+        <i class="material-icons edit" on-click="_editCategory">create
+        </i>
+        <i class="material-icons delete" on-click="_deleteCategory">delete
+        </i>
+      </h1>
+    </template>
+    <template is="dom-if" if="[[!loading]]">
       <template is="dom-repeat" items="[[questions]]" as="question">
         <redo-upload-table-row 
           index="[[index]]"
           question="[[question]]"
           on-edit="_editQuestion"
           on-delete="_deleteQuestion"></redo-upload-table-row>
-       </template>
+      </template>
     </template>
-    <template is="dom-if" if="[[loadingQuestions]]">
-      <paper-spinner-lite active class="white"></paper-spinner-lite>
-    </template>
-    <i class="material-icons add" on-click="_addQuestion">add
-        <paper-ripple></paper-ripple>
-    </i>
-    <redo-upload-question-dialog id="dialog"></redo-upload-question-dialog>
 
-    <iron-ajax
-      id="getCategoriesAjax"
-      method="GET"
-      on-error="_handleError"
-      debounce-duration="3000"
-      loading="{{loadingQuestions}}"
-      last-response="{{categories}}"
-    ></iron-ajax>
+    <template is="dom-if" if="[[listIsEmpty]]">
+      <p id="emptyListMessage">Aún no hay preguntas en esta categoría</p>
+    </template>
+    
+    <template is="dom-if" if="[[loading]]">
+      <paper-spinner-lite active id="spinner" class="orange"></paper-spinner-lite>
+    </template>
+
+    <redo-upload-question-dialog id="questionDialog" on-add="_handleNewQuestion" on-edit="_handleEditedQuestion" category-id="[[currentCategoryId]]">
+    </redo-upload-question-dialog>
+    <redo-upload-category-dialog id="categoryDialog" on-add="_handleNewCategory" on-edit="_handleEditedCategory">
+    </redo-upload-category-dialog>
+    <redo-confirmation-dialog id="categoryDeletionDialog" on-accept="_confirmedCategoryDeletion"></redo-confirmation-dialog>
+    <redo-confirmation-dialog id="questionDeletionDialog" on-accept="_confirmedQuestionDeletion"></redo-confirmation-dialog>
+    <paper-toast duration="6000" id="error" text="Error de conexión con el servidor"></paper-toast>
 
     <iron-ajax
       auto
+      id="getCategoriesAjax"
+      method="GET"
+      url="http://admin.redomedica.com/api/categories"
+      on-error="_handleError"
+      on-response="_handleCategoriesResponse"
+      debounce-duration="3000"
+      loading="{{loading}}"
+    ></iron-ajax>
+
+    <iron-ajax
+      id="deleteCategoryAjax"
+      method="DELETE"
+      on-error="_handleError"
+      on-response="_handleCategoryDeletionResponse"
+      debounce-duration="3000"
+      loading="{{loading}}"
+    ></iron-ajax>
+
+    <iron-ajax
       id="getQuestionsAjax"
+      url="http://admin.redomedica.com/api/questions"
       method="GET"
       on-error="_handleError"
       debounce-duration="3000"
-      loading="{{loadingQuestions}}"
-      url="/api/questions?category=[[selectedCategory]]"
-      last-response="{{questions}}"
+      loading="{{loading}}"
+      on-response="_handleQuestionsResponse"
+      loading="{{loading}}"
+    ></iron-ajax>
+
+    <iron-ajax
+      id="deleteQuestionAjax"
+      method="DELETE"
+      on-error="_handleError"
+      on-response="_handleQuestionDeletionResponse"
+      debounce-duration="3000"
+      loading="{{loading}}"
     ></iron-ajax>
 
   </template>
@@ -82,37 +202,149 @@
         return {
           questions: {
             type: Array,
-            value: 'redo-upload-app'
+            value: [],
           },
-          loadingQuestions:{
+          categories: {
+            type: Array,
+            value: [],
+            notify: true
+          },
+          loading:{
             type: Boolean,
-            value: false
+            value: false,
           },
           selectedCategory:{
-            type: String,
-          }
+            type: Number,
+            observer:"_selectedCategoryChanged"
+          },
+          listIsEmpty:{
+            type: Boolean,
+            computed:"_isListEmpty(loading,questions,downloadedQuestions)",
+          },
+          downloadedQuestions:{
+            type:Boolean,
+            value:false
+          },
+          currentCategoryName:String,
+          currentCategoryId:Number
         }
       }
 
       connectedCallback(){
         super.connectedCallback()
-        this.$.getQuestionsAjax.generateRequest()
+      }
+
+      _isListEmpty(loading,questions,downloadedQuestions){
+        return !loading && !questions.length && downloadedQuestions
+      }
+
+      _selectedCategoryChanged(index){
+        console.log("selecting category "+index)
+        if(index!=undefined && this.categories.length){
+          this.currentCategoryName = this.categories[index].name
+          this.currentCategoryId = this.categories[index].id
+          this.$.getQuestionsAjax.url="http://admin.redomedica.com/api/questions?category="+this.categories[index].id
+          this.$.getQuestionsAjax.generateRequest()
+        }
+      }
+
+      _handleCategoriesResponse(r){
+        if(r.detail.response) this.categories = r.detail.response.data
+        if(this.categories.length) this.selectedCategory = 0
+      }
+
+      _handleQuestionsResponse(r){
+        if(r.detail.response){
+          this.questions = []
+          setTimeout(()=>{this.questions = r.detail.response.data},5)
+          this.downloadedQuestions = true
+        }
       }
 
       _handleError(e){
-        console.log("Error")
+        this.$.error.toggle()
+      }
+
+      _addCategory(){
+        this.$.categoryDialog.category = {}
+        this.$.categoryDialog.open()
+      }
+
+      _handleNewCategory(e){
+        this.push('categories',e.detail)
+      }
+
+      _handleEditedCategory(e){
+        this.set('categories.'+this.selectedCategory, e.detail)
+        this.notifyPath('categories.'+this.selectedCategory+".name")
+        this.currentCategoryName = this.categories[this.selectedCategory].name
+      }
+
+      _editCategory(){
+        this.$.categoryDialog.category = this.categories[this.selectedCategory]
+        this.$.categoryDialog.open()
+      }
+
+      _deleteCategory(){
+        console.log("opening deletion dialog")
+        this.$.categoryDeletionDialog.title = "¿Seguro que deseas borrar esta categoría?"
+        this.$.categoryDeletionDialog.description = "Todas las preguntas de la categoría serán borradas"
+        this.$.categoryDeletionDialog.open()
+      }
+
+      _confirmedCategoryDeletion(){
+        this.$.deleteCategoryAjax.url = "http://admin.redomedica.com/api/categories/"+this.categories[this.selectedCategory].id
+        this.$.deleteCategoryAjax.generateRequest()
+      }
+
+      _handleCategoryDeletionResponse(r){
+        if(r.detail.response.success){
+          this.splice('categories',this.selectedCategory,1)
+          this.selectedCategory = 0
+        }
       }
 
       _addQuestion(){
-        this.$.dialog.open()
+        this.$.questionDialog._clear()
+        this.$.questionDialog.open()
       }
 
       _editQuestion(e){
+        this.questionEditionIndex = this.questions.findIndex(it=>{return it.id == e.detail.id})
+        this.$.questionDialog.question = e.detail
+        this.$.questionDialog.open()
+      }
 
+      _handleNewQuestion(e){
+        this.push('questions',e.detail)
+      }
+
+      _handleEditedQuestion(e){
+        let index = this.questions.findIndex(it=>{return it.id == e.detail.id})
+        this.set('questions.'+index, e.detail)
+        this.notifyPath('questions.'+index+".description")
+        this.shadowRoot.querySelectorAll("redo-upload-table-row")[this.questionEditionIndex]._questionChanged()
       }
 
       _deleteQuestion(e){
+        this.questionDeletionIndex = this.questions.findIndex(it=>{return it.id == e.detail.id})
+        this.$.questionDeletionDialog.title = "¿Seguro que deseas borrar esta pregunta?"
+        this.$.questionDeletionDialog.description = "La información no se podrá recuperar"
+        this.$.questionDeletionDialog.open()
+      }
 
+      _confirmedQuestionDeletion(){
+        this.$.deleteQuestionAjax.url = "http://admin.redomedica.com/api/questions/"+this.questions[this.questionDeletionIndex].id
+        this.$.deleteQuestionAjax.generateRequest()
+      }
+
+      _handleQuestionDeletionResponse(r){
+        if(r.detail.response.success){
+          this.splice('questions',this.questionDeletionIndex,1)
+          let questions = JSON.parse(JSON.stringify(this.questions))
+          this.set('questions',[])
+          setTimeout(()=>{this.set('questions',questions)},5)
+        }
       }
     }
 

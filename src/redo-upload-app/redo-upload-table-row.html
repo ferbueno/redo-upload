@@ -9,24 +9,26 @@
 				display: flex;
 				align-items: center;
 				justify-content: space-between;
-				background: white;
+				background: #f36b531a;
 				border-radius: 3px;
 				padding: 10px;
-				margin: 5px 0;
+				margin: 8px;
 			}
 			.index{
-				color: #434343;
-				padding: 10px;
-				border-radius: 15px;
-				text-align: center;
-				background: var(--redo-transparent-red-background-color);
+				padding: 4px;
+			    text-align: center;
+			    color: #f36b53;
+			    font-weight: bold;
+			    font-size: 23px;
 			}
-			.description{
+			.question{
 				flex: 1;
 				text-overflow: ellipsis;
+				padding-left: 8px;
 			}
-			.answer{
-				width: 30px;
+			.description{
+				display: block;
+    			font-weight: bold;
 			}
 
 			i{
@@ -51,12 +53,14 @@
 			}
 		</style>
 		<div class="wrapper">
-			<div class="index">[[index]]</div>
-			<div class="description"></div>
-			<div class="answer"></div>
-			<i class="material-icons edit">create
+			<div class="index">[[_add(index,1)]]</div>
+			<div class="question">
+				<span class="description">[[question.description]]</span>
+				<span class="answer">[[correctAnswer.description]]</span>
+			</div>
+			<i class="material-icons edit" on-click="_dispatchEdit">create
 				<paper-ripple></paper-ripple></i>
-			<i class="material-icons delete">delete
+			<i class="material-icons delete" on-click="_dispatchDelete">delete
 				<paper-ripple></paper-ripple></i>
 		</div>
 	</template>
@@ -66,21 +70,34 @@
 
 			static get properties(){
 				return {
-					index:{
-						type: Number
-					},
-					question:{
-						type: Object
-					},
+					index:Number,
+					question:Object,
+					correctAnswer:{
+						type:Object,
+						value:{}
+					}
 				}
 			}
 
+			static get observers(){
+				return ["_questionChanged('question.description')"]
+			}
+
+			_questionChanged(){
+				console.log("_questionChanged")
+				this.correctAnswer = this.question.answers.find((it)=>{return it.isCorrectAnswer})
+			}
+
+			_add(a,b){
+				return a+b
+			}
+
 			_dispatchEdit(){
-				this.dispatchEvent( new CustomEvent('edit', {bubbles: true, composed: true, detail: {index: this.index}}))
+				this.dispatchEvent( new CustomEvent('edit', {bubbles: true, composed: true, detail: this.question}))
 			}
 
 			_dispatchDelete(){
-				this.dispatchEvent( new CustomEvent('delete', {bubbles: true, composed: true, detail: {index: this.index}}))
+				this.dispatchEvent( new CustomEvent('delete', {bubbles: true, composed: true, detail: this.question}))
 			}
 		}
 

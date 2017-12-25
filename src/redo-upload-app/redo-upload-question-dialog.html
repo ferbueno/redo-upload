@@ -18,17 +18,21 @@
 			}
 			:host([opened]) .background{
 				display: flex;
+				z-index: 200;
 			}
 			paper-dialog{
 				width: 600px;
 				padding: 20px;
 				position: relative;
+				text-align: center;
 			}
-			i.close{
-				position: absolute;
-				top: 0;
-				right: 0;
-				cursor: pointer;
+			i.close {
+			    position: absolute;
+			    top: -3px;
+			    right: -3px;
+			    cursor: pointer;
+			    font-size: 26px;
+			    z-index: 40;
 			}
 			.background{
 				position: fixed;
@@ -49,86 +53,98 @@
 				flex: 2;
 			}
 			.index{
-				padding: 5px 10px;
+				padding: 8px 10px;
 				text-align: center;
 				background: var(--redo-transparent-red-background-color);
 				border-radius: 3px;
 				margin-right: 5px;
 			}
 			paper-button{
-				width: 100%;
 				margin:10px auto;
 			}
-			h2{
-				font-weight: normal;
-				font-size: 20px;
-				color: darkgray;
+			label{
+				float: left;
+				margin: 5px;
+			}
+			h2 {
+			    font-weight: normal;
+			    font-size: 20px;
+			    color: darkgray;
+			    padding-top: 20px;
+			}
+			.bibliography{
+				margin-top: 0px;
+			}
+			.radio-buttons{
+				display: flex;
+			    align-items: center;
+			    justify-content: space-between;
 			}
 		</style>
 		<div class="background">
-			<paper-dialog opened="{{opened}}">
+			<paper-dialog opened="{{opened}}" id="dialog">
 				<i class="material-icons close" on-click="_toggle">close
 					<paper-ripple></paper-ripple>
 				</i>
 				<h2>[[title]]</h2>
 				<div class="field">
 					<label>Descripción:</label>
-					<textarea id="description" rows="10" on-input="_descriptionChanged"></textarea>
-				</div>
-				<div class="field">
-					<label>Imagen:</label>
-					<div class="img-upload" style="">
-						<div class="img-mask">
-							<i class="material-icons">insert_photo</i>
-							<label>Cargar imagen</label>
-						</div>
-						<input type="file" on-input="_imageUpload">
-					</div>
+					<textarea id="description" rows="5" on-input="_descriptionChanged"></textarea>
 				</div>
 				<div class="question">
 					<div class="index">A</div>
-					<iron-input bind-value="{{question.answers.a}}"><input type="text"></iron-input>
+					<iron-input bind-value="{{question.answers.0.description}}"><input type="text"></iron-input>
 				</div>
 				<div class="question">
 					<div class="index">B</div>
-					<iron-input bind-value="{{question.answers.b}}"><input type="text"></iron-input>
+					<iron-input bind-value="{{question.answers.1.description}}"><input type="text"></iron-input>
 				</div>
 				<div class="question">
 					<div class="index">C</div>
-					<iron-input bind-value="{{question.answers.c}}"><input type="text"></iron-input>
+					<iron-input bind-value="{{question.answers.2.description}}"><input type="text"></iron-input>
 				</div>
 				<div class="question">
 					<div class="index">D</div>
-					<iron-input bind-value="{{question.answers.d}}"><input type="text"></iron-input>
+					<iron-input bind-value="{{question.answers.3.description}}"><input type="text"></iron-input>
 				</div>
-				<div class="field">
+				<div class="field radio-buttons">
 					<label>Elige la respuesta correcta:</label>
-					<paper-radio-group selected="{{question.selectedAnswer}}">
-						<paper-radio-button name="a">A</paper-radio-button>
-						<paper-radio-button name="b">B</paper-radio-button>
-						<paper-radio-button name="c">C</paper-radio-button>
-						<paper-radio-button name="d">D</paper-radio-button>
+					<paper-radio-group selected="{{selectedAnswer}}">
+						<paper-radio-button name="0">A</paper-radio-button>
+						<paper-radio-button name="1">B</paper-radio-button>
+						<paper-radio-button name="2">C</paper-radio-button>
+						<paper-radio-button name="3">D</paper-radio-button>
 					</paper-radio-group>
 				</div>
-				<div class="field">
-					<label>Bibliografía:</label>
-					<iron-input bind-value="{{question.bibliography}}"><input type="text"></iron-input>
+				<div class="field bibliography">
+					<label>Bibliografía (opcional):</label>
+					<textarea id="bibliography" rows="5" on-input="_bibliographyChanged"></textarea>
 				</div>
-				<paper-button on-click="_saveQuestion"><i class="material-icons">save</i>Guardar</paper-button>
-				
-				
+				<paper-button on-click="_saveQuestion" disabled="[[loading]]"><i class="material-icons">save</i>
+					<template is="dom-if" if="[[!loading]]">Guardar</template>
+					<template is="dom-if" if="[[loading]]">Guardando...</template>
+				</paper-button>
 			</paper-dialog>
+			<paper-toast duration="6000" id="alert" text="Debes llenar todos los campos requeridos"></paper-toast>
+			<paper-toast duration="6000" id="error" text="Error de conexión con el servidor"></paper-toast>
 		</div>
 		<iron-ajax
-			id="saveQuestionAjax"
+			id="saveAjax"
 			method="POST"
-			url="https://www.ficus.com.mx/redo/saveQuestion.php"
+			url="http://admin.redomedica.com/api/questions"
 			content-type="application/json"
 			body="[[question]]"
-			on-response="_handleSaveQuestionResponse"
-			on-error="_handleSaveQuestionError"></iron-ajax>
-		
-
+			loading="{{loading}}"
+			on-response="_handleSaveResponse"
+			on-error="_handleError"></iron-ajax>
+		<iron-ajax
+			id="updateAjax"
+			method="PUT"
+			content-type="application/json"
+			body="[[question]]"
+			loading="{{loading}}"
+			on-response="_handleUpdateResponse"
+			on-error="_handleError"></iron-ajax>
 	</template>
 	<script>
 		class RedoUploadQuestionDialog extends Polymer.Element{
@@ -138,64 +154,123 @@
 				return{
 					question:{
 						type: Object,
+						value:{
+							description:"",
+							bibliography:"",
+							answers:[
+								{description:""},
+								{description:""},
+								{description:""},
+								{description:""},
+							],
+							category:{
+								id: null
+							},
+							id:null
+						}
 					},
+					selectedAnswer:String,
 					opened:{
 						type: Boolean,
 						value: false,
 						reflectToAttribute: true,
 					},
-					loadingAnswer:{
-						type: Boolean,
-						value: false
-					},
 					title:{
 						type: String,
 						value: "Nueva Pregunta"
-					}
+					},
+			        loading:{
+			            type: Boolean,
+			            value: false,
+			        },
+					categoryId:Number
 				}
 			}
 
 			open(){
-				this.question = {}
-				this.title = "Nueva Pregunta"
 				this.opened = true
+				this.title =  this.question.id ? "Editar Pregunta" : "Nueva Pregunta"
+				this.question.category.id = this.categoryId
+				this.$.bibliography.value = this.question.bibliography ? this.question.bibliography : ""
+				this.$.description.value = this.question.description ? this.question.description : ""
+				if(this.question.id) this.question.answers.forEach((it,index)=>{if(it.isCorrectAnswer) this.selectedAnswer = index})
+			}
+
+			_clear(){
+				this.shadowRoot.querySelector("paper-dialog").querySelectorAll("textarea").forEach(it=>{it.value=""})
+				this.selectedAnswer=""
+				this.question = {
+							description:"",
+							bibliography:"",
+							answers:[
+								{description:""},
+								{description:""},
+								{description:""},
+								{description:""},
+							],
+							category:{
+								id: null
+							},
+							id:null
+						}
 			}
 
 			_toggle(){
 				this.opened = !this.opened
 			}
 
-			_openWithQuestion(question){
-				if (question) {
-					this.title = "Editar Pregunta"
-					this.set('question', question)
-					this.opened = true
-				}else{
-					this.open()
-				}
-			}
-
-			_handleSaveQuestionResponse(r){
+			_handleSaveResponse(r){
 				if (r.detail.response.success) {
-					//alert success
+					this.question.id = r.detail.response.data
+					this.dispatchEvent( new CustomEvent('add', { bubbles: true, composed: true, detail: this.question }))
+					this._toggle()
+
 				}else{
-					//alert error
+					this._handleError(r)
 				}
 			}
 
-			_handleSaveQuestionError(e){
-				//alert error
+			_handleUpdateResponse(r){
+				if (r.detail.response.success) {
+					this.dispatchEvent( new CustomEvent('edit', { bubbles: true, composed: true, detail: this.question }))
+					this._toggle()
+				}else{
+					this._handleError(r)
+				}
+			}
+
+			_handleError(e){
+				this.$.error.toggle()
 			}
 
 			_descriptionChanged(e){
 				this.set('question.description', e.target.value)
 			}
 
-			_saveQuestion(){
-				//just for reviewing purposes
-				console.log(this.question)
-				//this.$.saveQuestionAjax.generateRequest()
+			_bibliographyChanged(e){
+				this.set('question.bibliography', e.target.value)
 			}
+
+			_saveQuestion(){
+				console.log(this.question)
+				if(this._isFormValid()){
+					this.question.answers.forEach(it =>{ it.isCorrectAnswer = false })
+					this.question.answers[this.selectedAnswer].isCorrectAnswer = true
+					if(this.question.id){
+						this.$.updateAjax.url = "http://admin.redomedica.com/api/questions/"+this.question.id
+						this.$.updateAjax.generateRequest()
+					}
+					else this.$.saveAjax.generateRequest()
+				}
+				else this.$.alert.toggle()
+			}
+
+			_isFormValid(){
+				return  this.question.description 
+						&& this.selectedAnswer 
+						&& !this.question.answers.find(it =>{ return !it.description })
+			}
+
 
 			_imageUpload(e){
 				console.log(e)
