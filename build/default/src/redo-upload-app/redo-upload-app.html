@@ -103,7 +103,7 @@
         background: #fef0ee;
       }
     </style>
-    <paper-tabs selected="{{selectedCategory}}" scrollable no-bar autoselect>
+    <paper-tabs selected="{{selectedCategory}}" scrollable="" no-bar="" autoselect="">
       <template is="dom-repeat" items="[[categories]]" as="category">
         <paper-tab>[[category.name]]</paper-tab>
       </template>
@@ -131,11 +131,7 @@
     </template>
     <template is="dom-if" if="[[!loading]]">
       <template is="dom-repeat" items="[[questions]]" as="question">
-        <redo-upload-table-row 
-          index="[[index]]"
-          question="[[question]]"
-          on-edit="_editQuestion"
-          on-delete="_deleteQuestion"></redo-upload-table-row>
+        <redo-upload-table-row index="[[index]]" question="[[question]]" on-edit="_editQuestion" on-delete="_deleteQuestion"></redo-upload-table-row>
       </template>
     </template>
 
@@ -144,7 +140,7 @@
     </template>
     
     <template is="dom-if" if="[[loading]]">
-      <paper-spinner-lite active id="spinner" class="orange"></paper-spinner-lite>
+      <paper-spinner-lite active="" id="spinner" class="orange"></paper-spinner-lite>
     </template>
 
     <redo-upload-question-dialog id="questionDialog" on-add="_handleNewQuestion" on-edit="_handleEditedQuestion" category-id="[[currentCategoryId]]">
@@ -155,45 +151,13 @@
     <redo-confirmation-dialog id="questionDeletionDialog" on-accept="_confirmedQuestionDeletion"></redo-confirmation-dialog>
     <paper-toast duration="6000" id="error" text="Error de conexión con el servidor"></paper-toast>
 
-    <iron-ajax
-      auto
-      id="getCategoriesAjax"
-      method="GET"
-      url="http://admin.redomedica.com/api/categories"
-      on-error="_handleError"
-      on-response="_handleCategoriesResponse"
-      debounce-duration="3000"
-      loading="{{loading}}"
-    ></iron-ajax>
+    <iron-ajax auto="" id="getCategoriesAjax" method="GET" url="http://admin.redomedica.com/api/categories" on-error="_handleError" on-response="_handleCategoriesResponse" debounce-duration="3000" loading="{{loading}}"></iron-ajax>
 
-    <iron-ajax
-      id="deleteCategoryAjax"
-      method="DELETE"
-      on-error="_handleError"
-      on-response="_handleCategoryDeletionResponse"
-      debounce-duration="3000"
-      loading="{{loading}}"
-    ></iron-ajax>
+    <iron-ajax id="deleteCategoryAjax" method="DELETE" on-error="_handleError" on-response="_handleCategoryDeletionResponse" debounce-duration="3000" loading="{{loading}}"></iron-ajax>
 
-    <iron-ajax
-      id="getQuestionsAjax"
-      url="http://admin.redomedica.com/api/questions"
-      method="GET"
-      on-error="_handleError"
-      debounce-duration="3000"
-      loading="{{loading}}"
-      on-response="_handleQuestionsResponse"
-      loading="{{loading}}"
-    ></iron-ajax>
+    <iron-ajax id="getQuestionsAjax" url="http://admin.redomedica.com/api/questions" method="GET" on-error="_handleError" debounce-duration="3000" loading="{{loading}}" on-response="_handleQuestionsResponse"></iron-ajax>
 
-    <iron-ajax
-      id="deleteQuestionAjax"
-      method="DELETE"
-      on-error="_handleError"
-      on-response="_handleQuestionDeletionResponse"
-      debounce-duration="3000"
-      loading="{{loading}}"
-    ></iron-ajax>
+    <iron-ajax id="deleteQuestionAjax" method="DELETE" on-error="_handleError" on-response="_handleQuestionDeletionResponse" debounce-duration="3000" loading="{{loading}}"></iron-ajax>
 
   </template>
 
