@@ -1,0 +1,106 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/paper-ripple/paper-ripple.html">
+<link rel="import" href="shared-styles.html">
+
+<dom-module id="redo-upload-table-row">
+	<template>
+		<style include="shared-styles">
+			.wrapper{
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				background: #f36b531a;
+				border-radius: 3px;
+				padding: 10px;
+				margin: 8px;
+			}
+			.index{
+				padding: 4px;
+			    text-align: center;
+			    color: #f36b53;
+			    font-weight: bold;
+			    font-size: 23px;
+			}
+			.question{
+				flex: 1;
+				text-overflow: ellipsis;
+				padding-left: 8px;
+			}
+			.description{
+				display: block;
+    			font-weight: bold;
+			}
+
+			i{
+				font-size: 18px;
+				position: relative;
+				cursor: pointer;
+				width: 20px;
+				text-align: center;
+				margin: 0 4px;
+			}
+			.edit{
+				background-color: #03C9A9;
+				color: white;
+				padding: 6px;
+				border-radius: 3px;
+			}
+			.delete{
+				background-color: #EC644B;
+				color:white;
+				padding: 6px;
+				border-radius: 3px;
+			}
+		</style>
+		<div class="wrapper">
+			<div class="index">[[_add(index,1)]]</div>
+			<div class="question">
+				<span class="description">[[question.description]]</span>
+				<span class="answer">[[correctAnswer.description]]</span>
+			</div>
+			<i class="material-icons edit" on-click="_dispatchEdit">create
+				<paper-ripple></paper-ripple></i>
+			<i class="material-icons delete" on-click="_dispatchDelete">delete
+				<paper-ripple></paper-ripple></i>
+		</div>
+	</template>
+	<script>
+		class RedoUploadTableRow extends Polymer.Element {
+			static get is() { return 'redo-upload-table-row' }
+
+			static get properties(){
+				return {
+					index:Number,
+					question:Object,
+					correctAnswer:{
+						type:Object,
+						value:{}
+					}
+				}
+			}
+
+			static get observers(){
+				return ["_questionChanged('question.description')"]
+			}
+
+			_questionChanged(){
+				console.log("_questionChanged")
+				this.correctAnswer = this.question.answers.find((it)=>{return it.isCorrectAnswer})
+			}
+
+			_add(a,b){
+				return a+b
+			}
+
+			_dispatchEdit(){
+				this.dispatchEvent( new CustomEvent('edit', {bubbles: true, composed: true, detail: this.question}))
+			}
+
+			_dispatchDelete(){
+				this.dispatchEvent( new CustomEvent('delete', {bubbles: true, composed: true, detail: this.question}))
+			}
+		}
+
+		customElements.define(RedoUploadTableRow.is, RedoUploadTableRow)
+	</script>
+</dom-module>

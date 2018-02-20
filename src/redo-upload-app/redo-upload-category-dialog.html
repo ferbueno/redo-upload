@@ -1,0 +1,183 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../bower_components/iron-input/iron-input.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-spinner/paper-spinner-lite.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
+
+<link rel="import" href="shared-styles.html">
+
+<dom-module id="redo-upload-category-dialog">
+	<template>
+		<style include="shared-styles">
+			:host(:not([opened])) .background{
+				display: none;
+			}
+			:host([opened]) .background{
+				display: flex;
+				z-index: 200;
+			}
+			paper-dialog{
+				width: 600px;
+				padding: 20px;
+				position: relative;
+				text-align: center;
+			}
+			paper-dialog .field{
+				margin-top: 0px;
+			}
+			label{
+				float: left;
+    			margin: 5px;
+			}
+			i.close{
+				position: absolute;
+			    top: -3px;
+			    right: -3px;
+			    cursor: pointer;
+			    font-size: 26px;
+			    z-index: 40;
+			}
+			.background{
+				position: fixed;
+				width: 100%;
+				height: 100%;
+				background: rgba(0,0,0,0.2);
+				align-items: center;
+				justify-content: center;
+				top: 0;
+				left: 0;
+			}
+			paper-button{
+				align-items: center;
+    			display: inline-flex;
+				margin: 20px auto 0px;
+			}
+			h2{
+				font-weight: normal;
+				font-size: 20px;
+				color: darkgray;
+				padding-top: 20px;
+			}
+			[name="name"]{
+				margin-bottom: 15px;
+			}
+		</style>
+		<div class="background">
+			<paper-dialog opened="{{opened}}">
+				<i class="material-icons close" on-click="_toggle">close
+					<paper-ripple></paper-ripple>
+				</i>
+				<h2>[[title]]</h2>
+				<div class="field">
+					<label>Nombre:</label>
+					<iron-input bind-value="{{category.name}}">
+						<input type="text" name="name">
+					</iron-input>
+					<label>Abreviación:</label>
+					<iron-input bind-value="{{category.abreviation}}">
+						<input type="text" name="abrev">
+					</iron-input>
+				</div>
+				<paper-button on-click="_save"><i class="material-icons" disabled="[[loading]]">save</i>
+					<template is="dom-if" if="[[!loading]]">Guardar</template>
+					<template is="dom-if" if="[[loading]]">Guardando...</template>
+				</paper-button>
+			</paper-dialog>
+			<paper-toast duration="6000" id="alert" text="Debes llenar todos los campos requeridos"></paper-toast>
+			<paper-toast duration="6000" id="error" text="Error de conexión con el servidor"></paper-toast>
+		</div>
+		<iron-ajax
+			id="saveAjax"
+			method="POST"
+			url="http://admin.redomedica.com/api/categories"
+			content-type="application/json"
+			body="[[category]]"
+			loading="{{loading}}"
+			on-response="_handleSaveResponse"
+			on-error="_handleSaveError"></iron-ajax>
+
+		<iron-ajax
+			id="updateAjax"
+			method="PUT"
+			content-type="application/json"
+			body="[[category]]"
+			loading="{{loading}}"
+			on-response="_handleUpdateResponse"
+			on-error="_handleError"></iron-ajax>
+
+	</template>
+	<script>
+		class RedoUploadCategoryDialog extends Polymer.Element{
+			static get is() { return 'redo-upload-category-dialog' }
+
+			static get properties(){
+				return{
+					category:{
+						type: Object,
+						value:{}
+					},
+					opened:{
+						type: Boolean,
+						value: false,
+						reflectToAttribute: true,
+					},
+			        loading:{
+			            type: Boolean,
+			            value: false,
+			        },
+				}
+			}
+
+			open(){
+				this.question = {}
+				this.title =  this.question.id ? "Nueva Categoría" : "Editar Categoría"
+				this.opened = true
+			}
+
+			_toggle(){
+				this.opened = !this.opened
+			}
+
+			_handleSaveResponse(r){
+				if (r.detail.response.success) {
+					this.category.id = r.detail.response.data
+					this.dispatchEvent( new CustomEvent('add', { bubbles: true, composed: true, detail: this.category }))
+					this._toggle()
+
+				}else{
+					this._handleError(r)
+				}
+			}
+
+			_handleUpdateResponse(r){
+				if (r.detail.response.success) {
+					this.dispatchEvent( new CustomEvent('edit', { bubbles: true, composed: true, detail: this.category }))
+					this._toggle()
+				}else{
+					this._handleError(r)
+				}
+			}
+
+			_handleError(e){
+				this.$.error.toggle()
+			}
+
+			_save(){
+				console.log(this.category)
+				if(this.category.name && this.category.abreviation){
+					if(this.category.id){
+						this.$.updateAjax.url = "http://admin.redomedica.com/api/categories/"+this.category.id
+						this.$.updateAjax.generateRequest()
+					}
+					else this.$.saveAjax.generateRequest()
+				}
+				else this.$.alert.toggle()
+			}
+
+		}
+
+		customElements.define(RedoUploadCategoryDialog.is, RedoUploadCategoryDialog)
+	</script>
+</dom-module>

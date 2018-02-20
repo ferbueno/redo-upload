@@ -219,23 +219,8 @@
 			<paper-toast duration="6000" id="alert" text="Debes llenar todos los campos requeridos"></paper-toast>
 			<paper-toast duration="6000" id="error" text="Error de conexión con el servidor"></paper-toast>
 		</div>
-		<iron-ajax
-			id="saveAjax"
-			method="POST"
-			url="http://admin.redomedica.com/api/questions"
-			content-type="application/json"
-			body="[[question]]"
-			loading="{{loading}}"
-			on-response="_handleSaveResponse"
-			on-error="_handleError"></iron-ajax>
-		<iron-ajax
-			id="updateAjax"
-			method="PUT"
-			content-type="application/json"
-			body="[[question]]"
-			loading="{{loading}}"
-			on-response="_handleUpdateResponse"
-			on-error="_handleError"></iron-ajax>
+		<iron-ajax id="saveAjax" method="POST" url="http://admin.redomedica.com/api/questions" content-type="application/json" body="[[question]]" loading="{{loading}}" on-response="_handleSaveResponse" on-error="_handleError"></iron-ajax>
+		<iron-ajax id="updateAjax" method="PUT" content-type="application/json" body="[[question]]" loading="{{loading}}" on-response="_handleUpdateResponse" on-error="_handleError"></iron-ajax>
 	</template>
 	<script>
 		class RedoUploadQuestionDialog extends Polymer.Element{

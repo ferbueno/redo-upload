@@ -17,7 +17,8 @@
     "paper-tabs": "PolymerElements/paper-tabs#^2.0.0",
     "neon-animation": "PolymerElements/neon-animation#^2.0.2",
     "web-animations-js": "^2.3.1",
-    "iron-icon": "^2.0.1"
+    "iron-icon": "^2.0.1",
+    "file-drop-zone": "PolymerVis/file-drop-zone#^2.0.0"
   },
   "devDependencies": {
     "web-component-tester": "Polymer/web-component-tester#^6.0.0",
